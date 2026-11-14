@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TecMarket SJR | Compra y vende en tu Tec</title>
+    <meta name="description" content="El marketplace exclusivo para estudiantes del Tecnológico de San Juan del Río.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        darkBlue: '#101B35',
+                        electricBlue: '#2563EB',
+                        lightGray: '#F3F6FA',
+                        accentGreen: '#16A36A',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for things Tailwind doesn't cover natively out-of-the-box easily */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #F3F6FA 0%, #FFFFFF 100%);
+        }
+
+        .cta-gradient {
+            background: linear-gradient(135deg, #101B35 0%, #1e3a8a 100%);
+        }
+        
+        /* Modal Utilities */
+        .modal-active { overflow: hidden; }
+    </style>
+</head>
+<body class="font-sans text-slate-800 bg-white antialiased selection:bg-electricBlue selection:text-white">
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 glass-nav border-b border-gray-100 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 bg-electricBlue rounded-xl flex items-center justify-center text-white shadow-lg shadow-electricBlue/30">
+                        <i class="ph ph-student text-2xl"></i>
+                    </div>
+                    <span class="font-display font-bold text-xl text-darkBlue tracking-tight">TecMarket<span class="text-electricBlue">SJR</span></span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#inicio" class="text-sm font-medium text-slate-600 hover:text-electricBlue transition-colors">Inicio</a>
+                    <a href="#explorar" class="text-sm font-medium text-slate-600 hover:text-electricBlue transition-colors">Explorar</a>
+                    <a href="#como-funciona" class="text-sm font-medium text-slate-600 hover:text-electricBlue transition-colors">Cómo funciona</a>
+                    <a href="#vender" class="text-sm font-medium text-slate-600 hover:text-electricBlue transition-colors">Vender</a>
+                    <a href="#seguridad" class="text-sm font-medium text-slate-600 hover:text-electricBlue transition-colors">Seguridad</a>
+                </div>
+
+                <!-- Desktop Buttons -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <button onclick="openModal('loginModal')" class="text-sm font-semibold text-darkBlue hover:text-electricBlue transition-colors">Iniciar sesión</button>
+                    <button onclick="openModal('registerModal')" class="bg-electricBlue hover:bg-blue-700 text-white text-sm font-semibold py-2.5 px-6 rounded-full shadow-md shadow-electricBlue/20 transition-all duration-300 hover:-translate-y-0.5">
+                        Crear cuenta
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-darkBlue focus:outline-none p-2">
+                        <i class="ph ph-list text-3xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
+            <div class="px-4 pt-2 pb-6 space-y-2 flex flex-col shadow-inner">
+                <a href="#inicio" class="mobile-link block px-3 py-3 text-base font-medium text-slate-700 hover:bg-lightGray rounded-lg">Inicio</a>
+                <a href="#explorar" class="mobile-link block px-3 py-3 text-base font-medium text-slate-700 hover:bg-lightGray rounded-lg">Explorar productos</a>
+                <a href="#como-funciona" class="mobile-link block px-3 py-3 text-base font-medium text-slate-700 hover:bg-lightGray rounded-lg">Cómo funciona</a>
+                <a href="#vender" class="mobile-link block px-3 py-3 text-base font-medium text-slate-700 hover:bg-lightGray rounded-lg">Vender</a>
+                <a href="#seguridad" class="mobile-link block px-3 py-3 text-base font-medium text-slate-700 hover:bg-lightGray rounded-lg">Seguridad</a>
+                <div class="mt-4 pt-4 border-t border-gray-100 flex flex-col gap-3">
+                    <button onclick="openModal('loginModal')" class="w-full text-center py-3 text-base font-medium text-darkBlue border border-gray-200 rounded-lg">Iniciar sesión</button>
+                    <button onclick="openModal('registerModal')" class="w-full text-center py-3 text-base font-medium text-white bg-electricBlue rounded-lg">Crear cuenta</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section id="inicio" class="hero-gradient pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+                
+                <!-- Hero Text -->
+                <div class="z-10 animate-fade-in text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-electricBlue text-sm font-semibold mb-6 shadow-sm">
+                        <i class="ph-fill ph-check-circle text-accentGreen"></i>
+                        <span>Comunidad exclusiva ITSJR</span>
+                    </div>
+                    <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-darkBlue leading-tight mb-6">
+                        Compra y vende <br/>
+                        <span class="text-electricBlue relative">
+                            en tu Tec.
+                            <svg class="absolute w-full h-3 -bottom-1 left-0 text-blue-200/50" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="4" fill="none"/></svg>
+                        </span>
+                    </h1>
+                    <p class="text-lg text-slate-600 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        El marketplace exclusivo para estudiantes del Tecnológico de San Juan del Río. Encuentra lo que necesitas o convierte tus ideas en ingresos extra de forma segura.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="#explorar" class="bg-electricBlue hover:bg-blue-700 text-white font-semibold py-3.5 px-8 rounded-full shadow-lg shadow-electricBlue/30 transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-2">
+                            <i class="ph ph-magnifying-glass text-lg"></i>
+                            Explorar productos
+                        </a>
+                        <button onclick="openModal('publishModal')" class="bg-white hover:bg-gray-50 text-darkBlue border border-gray-200 font-semibold py-3.5 px-8 rounded-full shadow-sm transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-2">
+                            <i class="ph ph-storefront text-lg"></i>
+                            Comenzar a vender
+                        </button>
+                    </div>
+                    
+                    <div class="mt-10 flex items-center justify-center lg:justify-start gap-4 text-sm text-slate-500">
+                        <div class="flex -space-x-2">
+                            <img class="w-8 h-8 rounded-full border-2 border-white" src="https://placehold.co/100x100/2563EB/FFFFFF?text=A" alt="User">
+                            <img class="w-8 h-8 rounded-full border-2 border-white" src="https://placehold.co/100x100/16A36A/FFFFFF?text=C" alt="User">
+                            <img class="w-8 h-8 rounded-full border-2 border-white" src="https://placehold.co/100x100/F59E0B/FFFFFF?text=M" alt="User">
+                        </div>
+                        <p>Únete a +500 estudiantes activos</p>
+                    </div>
+                </div>
+
+                <!-- Hero Visuals -->
+                <div class="relative hidden lg:block h-[500px]">
+                    <!-- Floating abstract blobs for background -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float"></div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float-delayed transform translate-x-20"></div>
+                    
+                    <!-- Floating Product Card 1 -->
+                    <div class="absolute top-10 left-10 w-64 bg-white rounded-2xl shadow-xl p-4 animate-float border border-gray-100 rotate-[-2deg] z-20">
+                        <div class="w-full h-32 bg-gray-100 rounded-xl mb-3 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F3F6FA/2563EB?text=🎧" class="w-full h-full object-cover" alt="Product">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-semibold text-darkBlue text-sm">Audífonos Bluetooth</h3>
+                            <span class="text-xs font-bold text-electricBlue bg-blue-50 px-2 py-1 rounded-md">$180</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-xs text-slate-500">
+                            <i class="ph-fill ph-star text-yellow-400"></i>
+                            <span>4.8</span>
+                            <span class="mx-1">•</span>
+                            <i class="ph-fill ph-check-circle text-accentGreen"></i>
+                            <span>Vendedor verificado</span>
+                        </div>
+                    </div>
+
+                    <!-- Floating Product Card 2 -->
+                    <div class="absolute bottom-10 right-10 w-56 bg-white rounded-2xl shadow-xl p-4 animate-float-delayed border border-gray-100 rotate-[3deg] z-10">
+                        <div class="w-full h-28 bg-gray-100 rounded-xl mb-3 overflow-hidden">
+                            <img src="https://placehold.co/400x300/F3F6FA/16A36A?text=🍪" class="w-full h-full object-cover" alt="Product">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-semibold text-darkBlue text-sm">Brownies Caseros</h3>
+                            <span class="text-xs font-bold text-electricBlue bg-blue-50 px-2 py-1 rounded-md">$25</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-xs text-slate-500">
+                            <i class="ph-fill ph-star text-yellow-400"></i>
+                            <span>5.0</span>
+                            <span class="mx-1">•</span>
+                            <span>Ayer, Cafetería</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Notification pop -->
+                    <div class="absolute top-1/2 right-0 bg-darkBlue text-white px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 animate-float z-30">
+                        <div class="w-10 h-10 bg-accentGreen rounded-full flex items-center justify-center">
+                            <i class="ph ph-chat-circle-text text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-300">Nuevo mensaje</p>
+                            <p class="text-sm font-semibold">¡Hola! ¿Aún tienes los apuntes?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES SECTION -->
+    <section class="py-12 bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase text-center mb-8">Explora por categorías</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <!-- Cat 1 -->
+                <button onclick="filterCategory('comida')" class="category-btn group flex flex-col items-center p-4 rounded-2xl border border-gray-100 hover:border-electricBlue hover:shadow-md transition-all bg-lightGray/30 hover:bg-white text-center">
+                    <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-electricBlue group-hover:scale-110 transition-transform">
+                        <i class="ph ph-hamburger text-2xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-darkBlue">Comida y Snacks</span>
+                </button>
+                <!-- Cat 2 -->
+                <button onclick="filterCategory('tecnologia')" class="category-btn group flex flex-col items-center p-4 rounded-2xl border border-gray-100 hover:border-electricBlue hover:shadow-md transition-all bg-lightGray/30 hover:bg-white text-center">
+                    <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-electricBlue group-hover:scale-110 transition-transform">
+                        <i class="ph ph-devices text-2xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-darkBlue">Tecnología</span>
+                </button>
+                <!-- Cat 3 -->
+                <button onclick="filterCategory('estudio')" class="category-btn group flex flex-col items-center p-4 rounded-2xl border border-gray-100 hover:border-electricBlue hover:shadow-md transition-all bg-lightGray/30 hover:bg-white text-center">
+                    <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-electricBlue group-hover:scale-110 transition-transform">
+                        <i class="ph ph-books text-2xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-darkBlue">Material de estudio</span>
+                </button>
+                <!-- Cat 4 -->
+                <button onclick="filterCategory('ropa')" class="category-btn group flex flex-col items-center p-4 rounded-2xl border border-gray-100 hover:border-electricBlue hover:shadow-md transition-all bg-lightGray/30 hover:bg-white text-center">
+                    <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-electricBlue group-hover:scale-110 transition-transform">
+                        <i class="ph ph-t-shirt text-2xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-darkBlue">Ropa y Accesorios</span>
+                </button>
+                <!-- Cat 5 -->
+                <button onclick="filterCategory('manualidades')" class="category-btn group flex flex-col items-center p-4 rounded-2xl border border-gray-100 hover:border-electricBlue hover:shadow-md transition-all bg-lightGray/30 hover:bg-white text-center">
+                    <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-electricBlue group-hover:scale-110 transition-transform">
+                        <i class="ph ph-palette text-2xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-darkBlue">Manualidades</span>
+                </button>
+                <!-- Cat 6 -->
+                <button onclick="filterCategory('servicios')" class="category-btn group flex flex-col items-center p-4 rounded-2xl border border-gray-100 hover:border-electricBlue hover:shadow-md transition-all bg-lightGray/30 hover:bg-white text-center">
+                    <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-electricBlue group-hover:scale-110 transition-transform">
+                        <i class="ph ph-wrench text-2xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-darkBlue">Servicios</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPLORAR PRODUCTOS -->
+    <section id="explorar" class="py-20 bg-lightGray/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+                <div>
+                    <h2 class="font-display text-3xl font-bold text-darkBlue mb-2">Descubre lo más reciente</h2>
+                    <p class="text-slate-500">Productos destacados de la comunidad ITSJR</p>
+                </div>
+                
+                <!-- Buscador -->
+                <div class="relative w-full md:w-80">
+                    <input type="text" id="searchInput" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue focus:border-transparent shadow-sm">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-3.5 text-gray-400 text-lg"></i>
+                </div>
+            </div>
+
+            <!-- Filtros Activos Píldoras -->
+            <div id="active-filters" class="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-2 hidden">
+                <!-- JS inserta filtros aqui -->
+            </div>
+
+            <!-- Grid de Productos -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Los productos se inyectan vía JS -->
+            </div>
+
+            <!-- Empty state (Hidden by default) -->
+            <div id="empty-state" class="hidden text-center py-20">
+                <i class="ph ph-package text-6xl text-gray-300 mb-4 inline-block"></i>
+                <h3 class="text-lg font-bold text-darkBlue">No se encontraron productos</h3>
+                <p class="text-slate-500">Intenta con otra búsqueda o categoría.</p>
+                <button onclick="clearFilters()" class="mt-4 text-electricBlue font-medium hover:underline">Limpiar filtros</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CÓMO FUNCIONA -->
+    <section id="como-funciona" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="font-display text-3xl md:text-4xl font-bold text-darkBlue mb-4">¿Cómo funciona TecMarket?</h2>
+            <p class="text-slate-500 max-w-2xl mx-auto mb-16">Diseñado para ser rápido, sencillo y seguro dentro del campus.</p>
+
+            <div class="grid md:grid-cols-4 gap-8 relative">
+                <!-- Linea conectora en desktop -->
+                <div class="hidden md:block absolute top-10 left-[10%] right-[10%] h-0.5 bg-gray-100 -z-10"></div>
+
+                <!-- Paso 1 -->
+                <div class="relative group">
+                    <div class="w-20 h-20 mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                        <span class="absolute -top-3 -right-3 w-8 h-8 bg-electricBlue text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">1</span>
+                        <i class="ph ph-identification-card text-4xl text-darkBlue"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-darkBlue mb-2">Regístrate</h3>
+                    <p class="text-sm text-slate-500">Utiliza tu correo institucional del ITSJR y verifica tu identidad estudiantil.</p>
+                </div>
+
+                <!-- Paso 2 -->
+                <div class="relative group">
+                    <div class="w-20 h-20 mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                        <span class="absolute -top-3 -right-3 w-8 h-8 bg-electricBlue text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">2</span>
+                        <i class="ph ph-magnifying-glass text-4xl text-darkBlue"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-darkBlue mb-2">Explora</h3>
+                    <p class="text-sm text-slate-500">Encuentra productos y servicios publicados por tus propios compañeros.</p>
+                </div>
+
+                <!-- Paso 3 -->
+                <div class="relative group">
+                    <div class="w-20 h-20 mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                        <span class="absolute -top-3 -right-3 w-8 h-8 bg-electricBlue text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">3</span>
+                        <i class="ph ph-chat-circle text-4xl text-darkBlue"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-darkBlue mb-2">Contacta</h3>
+                    <p class="text-sm text-slate-500">Usa nuestro chat interno seguro para acordar los detalles y apartar tu pedido.</p>
+                </div>
+
+                <!-- Paso 4 -->
+                <div class="relative group">
+                    <div class="w-20 h-20 mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                        <span class="absolute -top-3 -right-3 w-8 h-8 bg-electricBlue text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">4</span>
+                        <i class="ph ph-handshake text-4xl text-darkBlue"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-darkBlue mb-2">Recoge</h3>
+                    <p class="text-sm text-slate-500">Acuerda la entrega en puntos autorizados dentro del campus de forma segura.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VENDE EN TU TEC -->
+    <section id="vender" class="py-24 bg-darkBlue text-white relative overflow-hidden">
+        <!-- Decoraciones de fondo -->
+        <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-electricBlue rounded-full mix-blend-screen opacity-10 filter blur-[100px] translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accentGreen rounded-full mix-blend-screen opacity-10 filter blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <span class="text-accentGreen font-semibold tracking-wider uppercase text-sm mb-4 block">Emprendedores ITSJR</span>
+                    <h2 class="font-display text-3xl md:text-5xl font-bold mb-6 leading-tight">Tu talento merece llegar más lejos.</h2>
+                    <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                        ¿Preparas postres increíbles, vendes accesorios, ofreces tutorías o tienes un talento especial? TecMarket te conecta instantáneamente con miles de compradores dentro de tu comunidad estudiantil.
+                    </p>
+                    
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center gap-3 text-gray-200">
+                            <i class="ph-fill ph-check-circle text-accentGreen text-xl"></i>
+                            Publicaciones siempre gratuitas.
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-200">
+                            <i class="ph-fill ph-check-circle text-accentGreen text-xl"></i>
+                            Acceso directo a compradores del plantel.
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-200">
+                            <i class="ph-fill ph-check-circle text-accentGreen text-xl"></i>
+                            Construye tu reputación y confianza.
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-200">
+                            <i class="ph-fill ph-check-circle text-accentGreen text-xl"></i>
+                            Sin necesidad de rentar un local físico.
+                        </li>
+                    </ul>
+
+                    <button onclick="openModal('publishModal')" class="bg-electricBlue hover:bg-blue-600 text-white font-semibold py-4 px-8 rounded-full shadow-lg shadow-electricBlue/40 transition-transform duration-300 hover:-translate-y-1">
+                        Publica tu primer producto
+                    </button>
+                </div>
+                
+                <div class="relative">
+                    <!-- Dashboard Mockup -->
+                    <div class="bg-white rounded-2xl p-6 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+                            <div>
+                                <h4 class="text-darkBlue font-bold">Mi Panel de Ventas</h4>
+                                <p class="text-slate-400 text-sm">Resumen semanal</p>
+                            </div>
+                            <div class="bg-green-50 text-accentGreen px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                                <i class="ph ph-trend-up"></i> +15%
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-lightGray p-4 rounded-xl">
+                                <p class="text-slate-500 text-xs mb-1">Ingresos</p>
+                                <p class="text-darkBlue font-bold text-xl">$1,250 <span class="text-xs text-slate-400 font-normal">MXN</span></p>
+                            </div>
+                            <div class="bg-lightGray p-4 rounded-xl">
+                                <p class="text-slate-500 text-xs mb-1">Pedidos Activos</p>
+                                <p class="text-darkBlue font-bold text-xl">8</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-darkBlue font-semibold text-sm mb-3">Últimos pedidos</p>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <div class="flex items-center gap-3 text-slate-600">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-electricBlue"><i class="ph ph-cookie"></i></div>
+                                        <span>2x Brownies (Entregar 12:00)</span>
+                                    </div>
+                                    <span class="font-semibold text-darkBlue">$50</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <div class="flex items-center gap-3 text-slate-600">
+                                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600"><i class="ph ph-notebook"></i></div>
+                                        <span>Apuntes de Cálculo</span>
+                                    </div>
+                                    <span class="font-semibold text-darkBlue">$30</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEGURIDAD Y COMISIONES (GRID 2 COLUMNAS) -->
+    <section id="seguridad" class="py-24 bg-lightGray/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Seguridad -->
+                <div class="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="w-14 h-14 bg-blue-50 text-electricBlue rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        <i class="ph ph-shield-check"></i>
+                    </div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-darkBlue mb-4">Compra con confianza.<br>Vende con tranquilidad.</h2>
+                    <p class="text-slate-500 mb-8">Nuestra prioridad es crear un entorno seguro exclusivo para la comunidad ITSJR.</p>
+                    
+                    <ul class="space-y-5">
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 bg-green-100 text-accentGreen rounded-full p-1"><i class="ph ph-check"></i></div>
+                            <div>
+                                <h4 class="font-bold text-darkBlue">Correo institucional obligatorio</h4>
+                                <p class="text-sm text-slate-500">Solo estudiantes verificados pueden acceder a la plataforma.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 bg-green-100 text-accentGreen rounded-full p-1"><i class="ph ph-check"></i></div>
+                            <div>
+                                <h4 class="font-bold text-darkBlue">Calificaciones y Reseñas</h4>
+                                <p class="text-sm text-slate-500">Sistema de reputación basado en compras reales.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 bg-green-100 text-accentGreen rounded-full p-1"><i class="ph ph-check"></i></div>
+                            <div>
+                                <h4 class="font-bold text-darkBlue">Puntos de entrega seguros</h4>
+                                <p class="text-sm text-slate-500">Lugares designados y concurridos dentro del campus para intercambios.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Modelo de negocio / Comisiones -->
+                <div class="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="w-14 h-14 bg-green-50 text-accentGreen rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        <i class="ph ph-coin"></i>
+                    </div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-darkBlue mb-4">Modelo transparente.</h2>
+                    <p class="text-slate-500 mb-8">Diseñado para apoyar el emprendimiento estudiantil de forma justa.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-2xl border border-gray-100 bg-lightGray/50 flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-darkBlue flex items-center gap-2">Publicar Productos</h4>
+                                <p class="text-xs text-slate-500">Sube todos los productos que quieras.</p>
+                            </div>
+                            <span class="font-bold text-accentGreen bg-green-100 px-3 py-1 rounded-lg">GRATIS</span>
+                        </div>
+
+                        <div class="p-5 rounded-2xl border border-blue-100 bg-blue-50 flex justify-between items-center relative overflow-hidden">
+                            <div class="relative z-10">
+                                <h4 class="font-bold text-darkBlue flex items-center gap-2">Comisión por Venta Exitosa</h4>
+                                <p class="text-xs text-slate-600">Solo pagas si tu producto se vende.</p>
+                            </div>
+                            <span class="font-bold text-electricBlue text-2xl relative z-10">10%</span>
+                        </div>
+
+                        <div class="p-4 rounded-xl flex items-start gap-3 mt-4 text-sm text-slate-500">
+                            <i class="ph ph-info text-xl text-electricBlue flex-shrink-0"></i>
+                            <p><strong>Beneficio Emprendedor Pro:</strong> Si logras 10 ventas al mes, tu comisión bajará automáticamente al <strong>8%</strong>. Además, puedes destacar tus publicaciones por $10 MXN/semana.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- BOTTOM CTA -->
+    <section class="py-20">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="cta-gradient rounded-[2.5rem] p-10 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
+                <!-- BG Vectors -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                
+                <h2 class="font-display text-3xl md:text-5xl font-bold mb-6 relative z-10">El mercado de tu comunidad comienza aquí.</h2>
+                <p class="text-blue-100 text-lg mb-10 max-w-2xl mx-auto relative z-10">Forma parte de una nueva manera de comprar, vender y emprender dentro del Tecnológico de San Juan del Río.</p>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
+                    <button onclick="openModal('registerModal')" class="bg-white text-darkBlue font-bold py-4 px-8 rounded-full shadow-lg hover:bg-gray-50 transition-transform duration-300 hover:scale-105">
+                        Quiero comprar
+                    </button>
+                    <button onclick="openModal('publishModal')" class="bg-transparent border-2 border-white/30 hover:bg-white/10 text-white font-bold py-4 px-8 rounded-full transition-colors duration-300">
+                        Quiero vender
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-100 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-electricBlue rounded-lg flex items-center justify-center text-white">
+                            <i class="ph ph-student text-xl"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl text-darkBlue">TecMarket<span class="text-electricBlue">SJR</span></span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-6">Conectando estudiantes, impulsando el comercio local dentro del campus del ITSJR.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-lightGray flex items-center justify-center text-slate-500 hover:bg-electricBlue hover:text-white transition-colors"><i class="ph-fill ph-facebook-logo text-xl"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-lightGray flex items-center justify-center text-slate-500 hover:bg-electricBlue hover:text-white transition-colors"><i class="ph-fill ph-instagram-logo text-xl"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-lightGray flex items-center justify-center text-slate-500 hover:bg-electricBlue hover:text-white transition-colors"><i class="ph-fill ph-tiktok-logo text-xl"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-darkBlue mb-4">Plataforma</h4>
+                    <ul class="space-y-3 text-sm text-slate-500">
+                        <li><a href="#explorar" class="hover:text-electricBlue transition-colors">Explorar productos</a></li>
+                        <li><a href="#vender" class="hover:text-electricBlue transition-colors">Vender en TecMarket</a></li>
+                        <li><a href="#como-funciona" class="hover:text-electricBlue transition-colors">Cómo funciona</a></li>
+                        <li><a href="#seguridad" class="hover:text-electricBlue transition-colors">Seguridad y Confianza</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-darkBlue mb-4">Soporte</h4>
+                    <ul class="space-y-3 text-sm text-slate-500">
+                        <li><a href="#" class="hover:text-electricBlue transition-colors">Preguntas Frecuentes</a></li>
+                        <li><a href="#" class="hover:text-electricBlue transition-colors">Centro de Ayuda</a></li>
+                        <li><a href="#" class="hover:text-electricBlue transition-colors">Reportar un problema</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-darkBlue mb-4">Contacto</h4>
+                    <p class="text-sm text-slate-500 mb-2">¿Tienes alguna duda o sugerencia?</p>
+                    <a href="mailto:l25590293@sjuanrio.tecnm.mx" class="text-sm font-medium text-electricBlue hover:underline flex items-center gap-2">
+                        <i class="ph ph-envelope-simple"></i>
+                        l25590293@sjuanrio.tecnm.mx
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+                <p>&copy; 2026 TecMarket SJR. Todos los derechos reservados. Proyecto ITSJR.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-darkBlue">Términos y condiciones</a>
+                    <a href="#" class="hover:text-darkBlue">Aviso de Privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ================= MODALS (DEMO) ================= -->
+    
+    <!-- Modal Base / Backdrop -->
+    <div id="modalBackdrop" class="fixed inset-0 bg-darkBlue/60 backdrop-blur-sm z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-300" onclick="closeAllModals(event)">
+        
+        <!-- Login Modal -->
+        <div id="loginModal" class="modal-content bg-white rounded-3xl w-full max-w-md mx-4 p-8 relative transform scale-95 transition-transform duration-300 hidden" onclick="event.stopPropagation()">
+            <button onclick="closeAllModals()" class="absolute top-4 right-4 text-gray-400 hover:text-darkBlue"><i class="ph ph-x text-2xl"></i></button>
+            
+            <div class="text-center mb-8">
+                <div class="w-12 h-12 bg-electricBlue rounded-xl flex items-center justify-center text-white mx-auto mb-4"><i class="ph ph-student text-2xl"></i></div>
+                <h3 class="font-display text-2xl font-bold text-darkBlue">Iniciar Sesión</h3>
+                <p class="text-sm text-slate-500 mt-1">Usa tu correo institucional del ITSJR</p>
+            </div>
+            
+            <form onsubmit="demoSubmit(event, 'loginModal', '¡Inicio de sesión exitoso!')" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
+                    <input type="email" required placeholder="L12345678@sjuanrio.tecnm.mx" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
+                    <input type="password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue focus:border-transparent">
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="rounded text-electricBlue focus:ring-electricBlue">
+                        <span class="text-slate-600">Recordarme</span>
+                    </label>
+                    <a href="#" class="text-electricBlue hover:underline font-medium">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit" class="w-full bg-electricBlue hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors mt-6">Entrar</button>
+            </form>
+            <p class="text-center text-sm text-slate-500 mt-6">¿No tienes cuenta? <button onclick="switchModal('registerModal')" class="text-electricBlue font-bold hover:underline">Regístrate</button></p>
+        </div>
+
+        <!-- Register Modal -->
+        <div id="registerModal" class="modal-content bg-white rounded-3xl w-full max-w-md mx-4 p-8 relative transform scale-95 transition-transform duration-300 hidden" onclick="event.stopPropagation()">
+            <button onclick="closeAllModals()" class="absolute top-4 right-4 text-gray-400 hover:text-darkBlue"><i class="ph ph-x text-2xl"></i></button>
+            
+            <div class="text-center mb-6">
+                <h3 class="font-display text-2xl font-bold text-darkBlue">Crear Cuenta</h3>
+                <p class="text-sm text-slate-500 mt-1">Únete a la comunidad del Tec</p>
+            </div>
+            
+            <form onsubmit="demoSubmit(event, 'registerModal', '¡Cuenta creada! Verifica tu correo.')" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Nombre(s)</label>
+                        <input type="text" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Apellidos</label>
+                        <input type="text" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue focus:border-transparent">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Correo Institucional</label>
+                    <input type="email" required pattern=".*@sjuanrio\.tecnm\.mx$" placeholder="ejemplo@sjuanrio.tecnm.mx" title="Debe ser un correo válido del ITSJR" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue focus:border-transparent">
+                    <p class="text-xs text-slate-400 mt-1">Obligatorio terminar en @sjuanrio.tecnm.mx</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
+                    <input type="password" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full bg-electricBlue hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors mt-4">Registrarse</button>
+            </form>
+            <p class="text-center text-sm text-slate-500 mt-6">¿Ya tienes cuenta? <button onclick="switchModal('loginModal')" class="text-electricBlue font-bold hover:underline">Inicia Sesión</button></p>
+        </div>
+
+        <!-- Publish Product Modal -->
+        <div id="publishModal" class="modal-content bg-white rounded-3xl w-full max-w-lg mx-4 p-8 relative transform scale-95 transition-transform duration-300 hidden max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <button onclick="closeAllModals()" class="absolute top-4 right-4 text-gray-400 hover:text-darkBlue"><i class="ph ph-x text-2xl"></i></button>
+            
+            <div class="mb-6 border-b border-gray-100 pb-4">
+                <h3 class="font-display text-2xl font-bold text-darkBlue">Publicar Producto</h3>
+                <p class="text-sm text-slate-500 mt-1">Completa los datos para vender en TecMarket</p>
+            </div>
+            
+            <form onsubmit="demoSubmit(event, 'publishModal', '¡Producto publicado con éxito! (Demo)')" class="space-y-4">
+                
+                <!-- Imagen mockup -->
+                <div class="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:bg-gray-50 hover:border-electricBlue transition-colors">
+                    <i class="ph ph-image text-3xl mb-1"></i>
+                    <span class="text-sm font-medium">Sube fotos de tu producto</span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Título del producto</label>
+                    <input type="text" required placeholder="Ej. Audífonos, Apuntes, etc." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Precio (MXN)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-slate-400">$</span>
+                            <input type="number" required min="1" placeholder="0.00" class="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Categoría</label>
+                        <select required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue bg-white">
+                            <option value="">Selecciona...</option>
+                            <option value="comida">Comida y Snacks</option>
+                            <option value="tecnologia">Tecnología</option>
+                            <option value="estudio">Material Estudio</option>
+                            <option value="ropa">Ropa y Accesorios</option>
+                            <option value="servicios">Servicios</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
+                    <textarea required rows="3" placeholder="Detalles de tu producto, estado, horarios de entrega..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-electricBlue resize-none"></textarea>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-xl flex items-start gap-3 mt-2">
+                    <i class="ph ph-info text-electricBlue text-xl flex-shrink-0"></i>
+                    <p class="text-xs text-slate-600">Al publicar aceptas nuestra política de <strong class="text-darkBlue">comisión del 10% únicamente al concretar la venta</strong> dentro de la plataforma.</p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeAllModals()" class="px-6 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-gray-100 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl font-bold text-white bg-electricBlue hover:bg-blue-700 shadow-md transition-colors">Publicar Producto</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success Message Modal -->
+        <div id="successModal" class="modal-content bg-white rounded-3xl w-full max-w-sm mx-4 p-8 relative transform scale-95 transition-transform duration-300 hidden text-center" onclick="event.stopPropagation()">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-accentGreen mx-auto mb-4">
+                <i class="ph-fill ph-check-circle text-4xl"></i>
+            </div>
+            <h3 class="font-display text-xl font-bold text-darkBlue mb-2" id="successMessageTitle">¡Éxito!</h3>
+            <p class="text-slate-500 mb-6" id="successMessageText">Operación realizada correctamente.</p>
+            <button onclick="closeAllModals()" class="w-full bg-darkBlue text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition-colors">Entendido</button>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT DE LOGICA (JAVASCRIPT) -->
+    <script>
+        // --- Navbar Effect on Scroll ---
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-md');
+            } else {
+                nav.classList.remove('shadow-md');
+            }
+        });
+
+        // --- Mobile Menu Toggle ---
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // --- Datos de Demostración de Productos ---
+        const demoProducts = [
+            { id: 1, name: "Brownies Caseros (Caja x4)", price: 60, cat: "comida", rating: 4.9, img: "https://placehold.co/400x300/F3F6FA/101B35?text=Brownies", seller: "Ana M.", verified: true },
+            { id: 2, name: "Audífonos Bluetooth In-ear", price: 180, cat: "tecnologia", rating: 4.5, img: "https://placehold.co/400x300/F3F6FA/2563EB?text=Audifonos", seller: "Carlos R.", verified: true },
+            { id: 3, name: "Calculadora Científica Casio", price: 250, cat: "estudio", rating: 4.8, img: "https://placehold.co/400x300/F3F6FA/16A36A?text=Calculadora", seller: "Diego P.", verified: true },
+            { id: 4, name: "Apuntes de Cálculo Vectorial", price: 30, cat: "estudio", rating: 5.0, img: "https://placehold.co/400x300/F3F6FA/F59E0B?text=Apuntes", seller: "Laura S.", verified: false },
+            { id: 5, name: "Pulsera Artesanal", price: 45, cat: "manualidades", rating: 4.7, img: "https://placehold.co/400x300/F3F6FA/8B5CF6?text=Pulsera", seller: "Sofía T.", verified: true },
+            { id: 6, name: "Sudadera ITSJR Original", price: 350, cat: "ropa", rating: 4.9, img: "https://placehold.co/400x300/F3F6FA/101B35?text=Sudadera", seller: "Comité Estudiantil", verified: true },
+            { id: 7, name: "Servicio de Formateo PC", price: 150, cat: "servicios", rating: 4.6, img: "https://placehold.co/400x300/F3F6FA/06B6D4?text=Servicio+PC", seller: "Miguel V.", verified: true },
+            { id: 8, name: "Sándwich de Pollo Especial", price: 35, cat: "comida", rating: 4.4, img: "https://placehold.co/400x300/F3F6FA/EF4444?text=Sandwich", seller: "Juan C.", verified: false }
+        ];
+
+        // --- Lógica de Renderizado y Filtros ---
+        let currentFilter = '';
+        let currentSearch = '';
+
+        const grid = document.getElementById('products-grid');
+        const emptyState = document.getElementById('empty-state');
+        const searchInput = document.getElementById('searchInput');
+        const activeFiltersContainer = document.getElementById('active-filters');
+
+        function renderProducts() {
+            grid.innerHTML = '';
+            
+            // Filtrar productos
+            const filtered = demoProducts.filter(p => {
+                const matchCat = currentFilter === '' || p.cat === currentFilter;
+                const matchSearch = p.name.toLowerCase().includes(currentSearch.toLowerCase());
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                grid.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                
+                filtered.forEach(p => {
+                    const verifiedHtml = p.verified ? 
+                        `<div class="flex items-center gap-1 text-xs text-accentGreen font-medium mt-1"><i class="ph-fill ph-check-circle"></i> Vendedor verificado</div>` : 
+                        `<div class="flex items-center gap-1 text-xs text-slate-400 mt-1"><i class="ph ph-user"></i> Estudiante ITSJR</div>`;
+                    
+                    const card = `
+                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <div class="relative h-48 overflow-hidden bg-gray-100">
+                                <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <button class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
+                                    <i class="ph-fill ph-heart"></i>
+                                </button>
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col">
+                                <div class="flex justify-between items-start mb-2 gap-2">
+                                    <h3 class="font-bold text-darkBlue leading-tight">${p.name}</h3>
+                                    <span class="font-bold text-electricBlue whitespace-nowrap">$${p.price}</span>
+                                </div>
+                                <div class="flex items-center gap-1 text-sm text-slate-500 mb-3">
+                                    <i class="ph-fill ph-star text-yellow-400"></i>
+                                    <span class="font-medium text-darkBlue">${p.rating}</span>
+                                    <span class="mx-1">•</span>
+                                    <span>${p.seller}</span>
+                                </div>
+                                <div class="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
+                                    ${verifiedHtml}
+                                    <button onclick="demoAction('Añadir al carrito')" class="w-8 h-8 rounded-full bg-blue-50 text-electricBlue flex items-center justify-center hover:bg-electricBlue hover:text-white transition-colors">
+                                        <i class="ph ph-plus font-bold"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+            }
+
+            renderActiveFilters();
+        }
+
+        function filterCategory(cat) {
+            currentFilter = cat;
+            renderProducts();
+            // Scroll a los productos
+            document.getElementById('explorar').scrollIntoView({behavior: "smooth"});
+        }
+
+        function clearFilters() {
+            currentFilter = '';
+            currentSearch = '';
+            searchInput.value = '';
+            renderProducts();
+        }
+
+        function renderActiveFilters() {
+            activeFiltersContainer.innerHTML = '';
+            if(currentFilter !== '' || currentSearch !== '') {
+                activeFiltersContainer.classList.remove('hidden');
+                
+                if(currentFilter) {
+                    const names = {
+                        'comida': 'Comida y Snacks', 'tecnologia': 'Tecnología', 'estudio':'Material Estudio',
+                        'ropa': 'Ropa y Accesorios', 'manualidades': 'Manualidades', 'servicios': 'Servicios'
+                    };
+                    activeFiltersContainer.innerHTML += `
+                        <div class="bg-blue-50 text-electricBlue border border-blue-100 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap">
+                            Categoría: ${names[currentFilter]}
+                            <button onclick="filterCategory('')" class="hover:text-darkBlue"><i class="ph ph-x"></i></button>
+                        </div>
+                    `;
+                }
+
+                if(currentSearch) {
+                    activeFiltersContainer.innerHTML += `
+                        <div class="bg-blue-50 text-electricBlue border border-blue-100 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap">
+                            Búsqueda: "${currentSearch}"
+                            <button onclick="document.getElementById('searchInput').value=''; document.getElementById('searchInput').dispatchEvent(new Event('input'));" class="hover:text-darkBlue"><i class="ph ph-x"></i></button>
+                        </div>
+                    `;
+                }
+            } else {
+                activeFiltersContainer.classList.add('hidden');
+            }
+        }
+
+        // Event listener búsqueda
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderProducts();
+        });
+
+        // Init
+        renderProducts();
+
+
+        // --- LÓGICA DE MODALES (DEMOSTRACIÓN) ---
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const modals = document.querySelectorAll('.modal-content');
+
+        function openModal(modalId) {
+            // Cerrar todos primero
+            modals.forEach(m => {
+                m.classList.add('hidden');
+                m.classList.replace('scale-100', 'scale-95');
+            });
+            
+            // Mostrar backdrop
+            modalBackdrop.classList.remove('hidden');
+            modalBackdrop.classList.add('flex');
+            document.body.classList.add('modal-active');
+            
+            // Animar entrada backdrop
+            setTimeout(() => {
+                modalBackdrop.classList.remove('opacity-0');
+                
+                // Mostrar y animar modal específico
+                const targetModal = document.getElementById(modalId);
+                targetModal.classList.remove('hidden');
+                setTimeout(() => {
+                    targetModal.classList.replace('scale-95', 'scale-100');
+                }, 10);
+
+            }, 10);
+        }
+
+        function closeAllModals(e) {
+            // Si hay evento y el target no es el backdrop, ignorar (clic dentro del modal)
+            if(e && e.target !== modalBackdrop && !e.target.closest('button')) return;
+
+            modalBackdrop.classList.add('opacity-0');
+            modals.forEach(m => m.classList.replace('scale-100', 'scale-95'));
+            
+            setTimeout(() => {
+                modalBackdrop.classList.add('hidden');
+                modalBackdrop.classList.remove('flex');
+                modals.forEach(m => m.classList.add('hidden'));
+                document.body.classList.remove('modal-active');
+            }, 300);
+        }
+
+        function switchModal(newModalId) {
+            modals.forEach(m => {
+                m.classList.add('hidden');
+                m.classList.replace('scale-100', 'scale-95');
+            });
+            const target = document.getElementById(newModalId);
+            target.classList.remove('hidden');
+            setTimeout(() => {
+                target.classList.replace('scale-95', 'scale-100');
+            }, 10);
+        }
+
+        function demoSubmit(e, currentModal, message) {
+            e.preventDefault();
+            document.getElementById('successMessageText').innerText = message;
+            switchModal('successModal');
+            // Limpiar formulario para demostración
+            e.target.reset();
+        }
+
+        function demoAction(actionName) {
+            document.getElementById('successMessageTitle').innerText = "Acción simulada";
+            document.getElementById('successMessageText').innerText = `${actionName} (Función en desarrollo)`;
+            openModal('successModal');
+        }
+
+    </script>
+</body>
+</html>
